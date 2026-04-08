@@ -2,14 +2,9 @@ import requests
 import time
 import json
 
-TOKEN = "8701460359:AAERNfHHiTbOsMn5enh3IvpLt3WtdN9rehY"
+TOKEN = "8776355222:AAG4B1mxfINMu38buRwo5BHSBMIRsroBlhA"
 
 print("🚀 БОТ ЗАПУЩЕН")
-print(f"Токен: {TOKEN[:10]}...")
-
-# Проверка
-r = requests.get(f"https://api.telegram.org/bot{TOKEN}/getMe")
-print(f"Бот: {r.json()}")
 
 # Удаляем webhook
 requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook")
@@ -23,30 +18,25 @@ print("✅ БОТ ГОТОВ. ЖДУ /start")
 
 last_id = 0
 
-def send_photo(chat_id, image_path):
-    """Отправка изображения"""
+def send_photo_with_caption(chat_id, image_path, caption, keyboard=None):
+    """Отправка изображения с подписью и кнопкой"""
     url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    try:
-        with open(image_path, 'rb') as photo:
-            files = {'photo': photo}
-            data = {'chat_id': chat_id}
-            response = requests.post(url, files=files, data=data)
-            print(f"📷 Фото отправлено: {response.status_code}")
-            return response.json()
-    except Exception as e:
-        print(f"❌ Ошибка отправки фото: {e}")
-        return None
+    
+    with open(image_path, 'rb') as photo:
+        files = {'photo': photo}
+        data = {
+            'chat_id': chat_id,
+            'caption': caption,
+            'parse_mode': 'HTML'
+        }
+        if keyboard:
+            data['reply_markup'] = json.dumps(keyboard)
+        
+        response = requests.post(url, files=files, data=data)
+        print(f"📷 Фото с подписью отправлено: {response.status_code}")
+        return response.json()
 
-def send_message(chat_id, text, keyboard=None):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    data = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
-    if keyboard:
-        data["reply_markup"] = json.dumps(keyboard)
-    response = requests.post(url, data=data)
-    print(f"📤 Сообщение отправлено: {response.status_code}")
-    return response.json()
-
-# Текст сообщения
+# Текст сообщения (будет под изображением)
 MESSAGE_TEXT = """Привет. Я Лейла🙌🏻
 
 Сегодня ты получишь систему, благодаря которой сможешь зайти в графический дизайн с нуля и выйти на 100 000 ₽+, даже если сейчас у тебя нет опыта, портфолио и связей.
@@ -72,7 +62,7 @@ MESSAGE_TEXT = """Привет. Я Лейла🙌🏻
 
 Если ты хочешь не просто "изучить дизайн", а начать на нём зарабатывать, жми ниже⤵️"""
 
-# Ссылка на PDF (ОБНОВЛЕНО)
+# Ссылка на PDF
 PDF_URL = "https://leylastrategy.inomnekto.workers.dev/sstrategy.pdf"
 
 while True:
@@ -95,20 +85,16 @@ while True:
                     print(f"💬 Текст: {text}")
                     
                     if text == "/start":
-                        # 1. Отправляем изображение image.jpg
-                        send_photo(chat_id, "image.jpg")
-                        
-                        # Небольшая пауза, чтобы сообщения не слились
-                        time.sleep(0.5)
-                        
-                        # 2. Отправляем текст с кнопкой
+                        # Создаем кнопку
                         keyboard = {
                             "inline_keyboard": [
                                 [{"text": "📄 Открыть PDF", "url": PDF_URL}]
                             ]
                         }
-                        send_message(chat_id, MESSAGE_TEXT, keyboard)
-                        print(f"✅ Ответ отправлен пользователю {chat_id}")
+                        
+                        # Отправляем ОДНО сообщение: изображение + текст под ним + кнопка
+                        send_photo_with_caption(chat_id, "image.jpg", MESSAGE_TEXT, keyboard)
+                        print(f"✅ Сообщение отправлено пользователю {chat_id}")
         
         time.sleep(2)
         
