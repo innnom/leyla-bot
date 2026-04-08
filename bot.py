@@ -2,7 +2,7 @@ import requests
 import time
 import json
 
-TOKEN = "8776355222:AAG4B1mxfINMu38buRwo5BHSBMIRsroBlhA"
+TOKEN = "8701460359:AAERNfHHiTbOsMn5enh3IvpLt3WtdN9rehY"
 
 print("🚀 БОТ ЗАПУЩЕН")
 
