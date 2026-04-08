@@ -88,7 +88,7 @@ while True:
                         # Создаем кнопку
                         keyboard = {
                             "inline_keyboard": [
-                                [{"text": "📄 Открыть PDF", "url": PDF_URL}]
+                                [{"text": "Подробнее", "url": PDF_URL}]
                             ]
                         }
                         
